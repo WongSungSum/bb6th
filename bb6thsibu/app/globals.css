@@ -1,63 +1,162 @@
 @import "tailwindcss";
 
+/*
+ * 全站样式集中在这里
+ *
+ * 颜色一律用下面的主题变量，不要在页面里写 text-white / text-slate-400 / border-white/10 / #hex：
+ *   bg-background  页面底色        bg-surface   卡片、菜单、对话框
+ *   text-fg        主要文字        text-fg-2    次要文字
+ *   text-muted     说明、表头      text-faint   很淡的占位（如「-」）
+ *   border-line    一般边框        border-line-soft / divide-line-soft  很淡的分隔线
+ *   bg-subtle      hover、浅底     bg-subtle-2  选中、较深的浅底
+ * text-white 只用在紫色渐变 / 实心紫色底上。
+ *
+ * 主题：<html data-theme="dark|light">，由 app/layout.tsx 的小脚本按用户选择（或系统设定）设好。
+ */
+
+/* ─── 深色（默认） ─────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --background: #0a0f1e;
+  --surface: #161b2c;
+  --fg: #ffffff;
+  --fg-2: #cbd5e1;
+  --muted: #94a3b8;
+  --faint: #475569;
+  --line: rgb(255 255 255 / 0.10);
+  --line-soft: rgb(255 255 255 / 0.05);
+  --subtle: rgb(255 255 255 / 0.05);
+  --subtle-2: rgb(255 255 255 / 0.10);
+  --glow: rgb(139 92 246 / 0.25);
+}
+
+/* ─── 浅色 ─────────────────────────────────────────── */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --background: #f5f6fb;
+  --surface: #ffffff;
+  --fg: #0f172a;
+  --fg-2: #334155;
+  --muted: #526075;
+  --faint: #94a3b8;
+  --line: rgb(15 23 42 / 0.12);
+  --line-soft: rgb(15 23 42 / 0.07);
+  --subtle: rgb(15 23 42 / 0.04);
+  --subtle-2: rgb(15 23 42 / 0.08);
+  --glow: rgb(139 92 246 / 0.18);
+
+  /* 深色底上用的浅色强调字（-200/-300/-400）在白底看不清，浅色模式自动换成深一点的 */
+  --color-violet-200: var(--color-violet-800);
+  --color-violet-300: var(--color-violet-700);
+  --color-violet-400: var(--color-violet-600);
+  --color-indigo-300: var(--color-indigo-700);
+  --color-sky-300: var(--color-sky-700);
+  --color-teal-300: var(--color-teal-700);
+  --color-emerald-200: var(--color-emerald-800);
+  --color-emerald-300: var(--color-emerald-700);
+  --color-emerald-400: var(--color-emerald-700);
+  --color-red-200: var(--color-red-800);
+  --color-red-300: var(--color-red-700);
+  --color-red-400: var(--color-red-600);
+  --color-amber-200: var(--color-amber-800);
+  --color-amber-300: var(--color-amber-800);
+  --color-orange-400: var(--color-orange-700);
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-foreground: var(--fg);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-subtle: var(--subtle);
+  --color-subtle-2: var(--subtle-2);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* 个别地方要在浅色另外处理时用 light:xxx */
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--fg);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+/* ─── 表单 ─────────────────────────────────────────── */
 .form-label {
-  @apply font-black uppercase;
-  @apply tracking-[0.2em]; 
-  text-shadow: 0.5px 0 0 currentColor, -0.5px 0 0 currentColor;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  @apply text-[10px];
+  @apply font-black uppercase tracking-[0.2em] text-[10px];
 }
 .form-input {
-  @apply w-full px-4 py-3 rounded-xl text-sm transition-all duration-200;
-  @apply border border-gray-200 bg-white text-gray-500;
-  @apply dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400;
-  @apply outline-none; 
-  @apply placeholder-transparent;
+  @apply w-full min-h-12 px-4 py-3 rounded-xl text-sm text-fg transition-all duration-200;
+  @apply bg-subtle border border-line outline-none placeholder-transparent;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+/* 手机上输入框至少 16px，iPhone 点进去才不会自动放大画面 */
+@media (max-width: 767px) {
+  input, select, textarea, .form-input { font-size: 16px; }
 }
 .form-input:focus {
-  @apply border-blue-500 outline-none;
-  /* 水平 0, 垂直 0, 模糊 15px, 扩展 2px, 颜色为浅蓝色 */
-  box-shadow: 0 0 20px 2px rgba(96, 165, 250, 0.25);
+  @apply border-violet-400;
+  box-shadow: 0 0 20px 2px var(--glow);
+}
+.form-input[aria-invalid="true"] {
+  @apply border-red-400/70;
+}
+select.form-input option,
+select.form-input optgroup {
+  background: var(--surface);
+  color: var(--fg);
 }
 
-.dark .form-input:focus {
-  @apply border-blue-400;
-  box-shadow: 0 0 20px 2px rgba(96, 165, 250, 0.25);
-}
 .floating-group {
-  @apply relative mb-6;
+  @apply relative mb-5;
 }
-
 .floating-label {
-  @apply absolute left-4 top-3.5 text-gray-400 text-sm transition-all pointer-events-none bg-white dark:bg-gray-800 px-1;
+  @apply absolute left-4 top-3.5 text-sm text-muted px-1 transition-all pointer-events-none;
+  background: var(--surface);
+}
+.on-page .floating-label {
+  background: var(--background);
+}
+.floating-input:focus ~ .floating-label,
+.floating-input:not(:placeholder-shown) ~ .floating-label,
+.floating-input.is-filled ~ .floating-label {
+  @apply -top-2.5 left-3 text-xs text-violet-300;
 }
 
-/* 逻辑：当 Input Focus 或者不为空时 */
-.floating-input:focus ~ .floating-label,
-.floating-input:not(:placeholder-shown) ~ .floating-label {
-  @apply -top-2.5 left-3 text-xs ;
+/* ─── 按钮 ─────────────────────────────────────────── */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 min-h-11 px-5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-violet-500 to-indigo-500 shadow-[0_0_15px_rgba(139,92,246,0.5)] hover:brightness-110 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed;
+}
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 min-h-11 px-5 rounded-xl text-sm text-fg-2 border border-line hover:bg-subtle-2 hover:text-fg disabled:opacity-50;
+}
+.btn-danger {
+  @apply inline-flex items-center justify-center gap-2 min-h-11 px-5 rounded-xl text-sm font-semibold text-red-300 bg-red-500/15 border border-red-500/30 hover:bg-red-500/25 disabled:opacity-50;
+}
+.btn-primary, .btn-secondary, .btn-danger {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70;
+}
+
+/* ─── 卡片、连结 ───────────────────────────────────── */
+.card {
+  @apply bg-surface border border-line rounded-xl p-4 md:p-6;
+}
+:root[data-theme="light"] .card {
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+}
+.card-heading {
+  @apply text-xs uppercase tracking-[0.2em] text-muted font-semibold mb-4;
+}
+.back-link {
+  @apply inline-flex items-center gap-1.5 min-h-11 text-sm text-violet-400 hover:text-violet-300;
+}
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[10001] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-violet-600 focus:text-white;
 }

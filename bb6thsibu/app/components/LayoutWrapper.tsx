@@ -1,24 +1,26 @@
 'use client';
 import { usePathname } from 'next/navigation';
-import Ribbon from "./Ribbon";
+import Ribbon, { type NavAccess } from "./Ribbon";
 import React from 'react'
 import PageContainer from "./PageContainer";
 
 interface LayoutWrapperProps {
   children: React.ReactNode;
-  userName?: string | null; // This tells TypeScript what the prop is
+  userName?: string | null;
+  nav: NavAccess;
 }
 
-// Destructure userName here in the arguments!
-export default function LayoutWrapper({ children, userName }: LayoutWrapperProps) {
+export default function LayoutWrapper({ children, userName, nav }: LayoutWrapperProps) {
   const pathname = usePathname();
-  const noRibbonRoutes = ['/login', '/register'];
+  // 登录、改密码、初始化页面不显示导航
+  const noRibbonRoutes = ['/login', '/change-password', '/setup'];
   const showRibbon = !noRibbonRoutes.includes(pathname);
 
+  if (!showRibbon) return <>{children}</>;
   return (
     <>
-      {/* Now userName is defined and can be passed to Ribbon */}
-      {showRibbon && <Ribbon userName={userName} />}
+      <a href="#content" className="skip-link">Skip to content</a>
+      <Ribbon userName={userName} nav={nav} />
       <PageContainer>
         {children}
       </PageContainer>

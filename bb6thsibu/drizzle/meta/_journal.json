@@ -5,8 +5,85 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1776083175133,
-      "tag": "0000_ordinary_praxagora",
+      "when": 1793629569470,
+      "tag": "0000_init_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793629592240,
+      "tag": "0001_integrity_triggers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793631919352,
+      "tag": "0002_audit_entity_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793631921543,
+      "tag": "0003_immutability_triggers",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793663355509,
+      "tag": "0004_access_control",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793663361922,
+      "tag": "0005_access_control_triggers",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793710402786,
+      "tag": "0006_platoons",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793710419387,
+      "tag": "0007_platoon_triggers",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793711738695,
+      "tag": "0008_score_void_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793779777264,
+      "tag": "0009_age_up",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793782100167,
+      "tag": "0010_list_name_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793784226301,
+      "tag": "0011_score_can_clear",
       "breakpoints": true
     }
   ]

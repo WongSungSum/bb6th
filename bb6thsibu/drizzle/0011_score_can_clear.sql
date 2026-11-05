@@ -1,0 +1,1 @@
+ALTER TABLE "platoon_scores" ALTER COLUMN "points" DROP NOT NULL;

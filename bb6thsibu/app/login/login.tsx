@@ -1,159 +1,66 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from 'next/navigation';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { useActionState, useState } from 'react';
+import { loginAction, type LoginState } from '@/app/actions/auth';
+import { ErrorBanner, Field, SubmitLabel } from '@/app/components/ui';
+import { SITE_CONFIG } from '@/lib/constants';
 
-export default function Login() {
-    const [login, setLogin] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
-    const router = useRouter();
+export default function Login({ expired }: { expired?: boolean }) {
+  const [state, action, pending] = useActionState<LoginState, FormData>(loginAction, undefined);
+  const [identifier, setIdentifier] = useState(state?.identifier ?? '');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{ identifier?: string; password?: string }>({});
 
-    const handleLogin = async () => {
-        try {
-        setError('')
-        setLoading(true)
-        const result = await signIn('credentials', {
-            login,
-            password,
-            redirect: false,
-        })
+  const validate = (e: React.FormEvent) => {
+    const next = {
+      identifier: identifier.trim() ? undefined : 'Enter your IC number or username.',
+      password: password ? undefined : 'Enter your password.',
+    };
+    setErrors(next);
+    if (next.identifier || next.password) e.preventDefault();
+  };
 
-        if (result?.error) {
-            setError('Invalid email/username or password')
-        } else {
-            router.push('/dashboard')
-        }
-        } catch (error) {
-            setError('Something went wrong')
-        console.log(error)
-        } finally {
-            setLoading(false)
-        }
-    }
+  return (
+    <main className="min-h-dvh grid place-items-center px-4 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(139,92,246,0.18),transparent)]">
+      <div className="w-full max-w-sm card p-6 md:p-8">
+        <div className="flex flex-col items-center mb-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/icon.png" alt="" className="w-16 h-16 rounded-full object-cover mb-3" />
+          <p className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-fg to-muted">{SITE_CONFIG.shortName} Sibu</p>
+          <h1 className="text-xl font-bold mt-2">Sign in</h1>
+          <p className="text-sm text-muted">Use your IC number or username.</p>
+        </div>
 
-    const handleGoogle = async () => {
-        await signIn('google', { callbackUrl: '/dashboard' })
-    }
+        {expired && !state?.error && <p className="mb-4 text-sm text-fg-2">Your session expired. Please sign in again.</p>}
+        <ErrorBanner message={state?.error} />
 
-    // Allow Enter key to submit
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') handleLogin()
-    }
-
-    return (
-        <main className="min-h-screen bg-white dark:bg-gray-950 flex items-center justify-center px-6">
-            <div className="w-full max-w-sm">
-
-                {/* Logo */}
-                <div className="flex flex-col items-center mb-8">
-                <img
-                    src="/images/icon.png"
-                    alt="Logo"
-                    className="w-20 h-20 rounded-full object-cover mb-3"
-                />
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">BB 6th Sibu</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Welcome back!</p>
-                </div>
-
-                {/* Card */}
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
-
-                {/* Error message */}
-                {error && (
-                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900 rounded-xl">
-                    <p className="text-red-500 text-xs">{error}</p>
-                    </div>
-                )}
-
-                {/* Email or Username */}
-                <div className="mb-4 floating-group">
-                    <input
-                    type="text"
-                    placeholder=""
-                    value={login}
-                    onChange={(e) => setLogin(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="form-input floating-input"
-                    />
-                    <label className="form-label floating-label">
-                        Email or Username
-                    </label>
-                </div>
-
-                {/* Password */}
-                <div className="mb-2 relative floating-group">
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder=""
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            className="form-input floating-input"
-                        />
-                        <label className="form-label floating-label">
-                            Password
-                        </label>
-                        <button
-                            type="button" // 记得加这个，防止点击时意外触发 form submit
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-3.5 text-gray-400 hover:text-blue-500 transition-colors"
-                        >
-                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="text-lg" />
-                        </button>
-                </div>
-
-                {/* Forgot Password */}
-                {/* <div className="text-right mb-5">
-                    <a href="/forgot-password" className="text-xs text-blue-500 hover:underline">
-                    Forgot password?
-                    </a>
-                </div> */}
-
-                {/* Login Button */}
-                <button
-                    onClick={handleLogin}
-                    disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl text-sm transition mb-3"
-                >
-                    {loading ? 'Logging in...' : 'Login'}
-                </button>
-
-                {/* Divider */}
-                {/* <div className="flex items-center gap-3 my-4">
-                    <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"/>
-                    <span className="text-xs text-gray-400">or continue with</span>
-                    <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700"/>
-                </div> */}
-
-                {/* Google Login */}
-                {/* <button
-                    onClick={handleGoogle}
-                    className="w-full flex items-center justify-center gap-3 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium py-3 rounded-xl text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                >
-                    <svg width="18" height="18" viewBox="0 0 48 48">
-                    <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.7 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-9 20-20 0-1.3-.1-2.7-.4-4z"/>
-                    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4c-7.7 0-14.3 4.4-17.7 10.7z"/>
-                    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.2 0-9.7-2.9-11.9-7.2l-6.6 5.1C9.5 39.5 16.3 44 24 44z"/>
-                    <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.9 2.5-2.6 4.6-4.8 6l6.2 5.2C40.8 35.7 44 30.3 44 24c0-1.3-.1-2.7-.4-4z"/>
-                    </svg>
-                    Continue with Google
-                </button> */}
-                </div>
-
-                {/* Register */}
-                {/* <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-                Don't have an account?{' '}
-                <a href="/register" className="text-blue-500 font-medium hover:underline">
-                    Register
-                </a>
-                </p> */}
-            </div>
-        </main>
-    )
+        <form action={action} onSubmit={validate} noValidate>
+          <Field
+            label="IC number or username"
+            name="identifier"
+            value={identifier}
+            onChange={setIdentifier}
+            error={errors.identifier}
+            autoComplete="username"
+            disabled={pending}
+            maxLength={64}
+          />
+          <Field
+            label="Password"
+            name="password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            error={errors.password}
+            autoComplete="current-password"
+            disabled={pending}
+            maxLength={128}
+          />
+          <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary w-full mt-2">
+            <SubmitLabel pending={pending} idle="Sign in" busy="Signing in..." />
+          </button>
+        </form>
+      </div>
+    </main>
+  );
 }

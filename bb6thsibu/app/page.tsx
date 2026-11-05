@@ -1,6 +1,5 @@
+import { redirect } from 'next/navigation';
 
-export default function Home(){
-  const setNewView = async () => {
-  };
-  setNewView();
+export default function Home() {
+  redirect('/dashboard');
 }
